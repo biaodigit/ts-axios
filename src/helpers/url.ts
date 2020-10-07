@@ -19,6 +19,7 @@ export function buildURL(url: string, params?: any): string {
         const val = params[key]
         if (val === null || typeof val === 'undefined') return
 
+        // 处理参数为数组
         let values = []
         if (Array.isArray(val)) {
             values = val
@@ -38,6 +39,7 @@ export function buildURL(url: string, params?: any): string {
 
         let serializedParams = parts.join('&')
 
+        // 去除hash符号
         if (serializedParams) {
             const markIndex = url.indexOf('#')
             if (markIndex !== -1) {
