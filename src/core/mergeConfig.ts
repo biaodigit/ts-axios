@@ -1,12 +1,14 @@
 import { isPlainObject, deepMerge } from '../helpers/utils'
-import { AxiosRequestConfig } from '../types'
+import { AxiosRequestConfig, Method } from '../types'
 
 const strats = Object.create(null)
 
+// 默认
 function defaultStrat(val1: any, val2: any): any {
     return typeof val2 !== 'undefined' ? val2 : val1
 }
 
+// 指定从val2从获取
 function fromVal2Strat(val1: any, val2: any): any {
     if (typeof val2 !== 'undefined') {
         return val2
@@ -22,8 +24,8 @@ stratKeysFromVal2.forEach(key => {
 
 function deepMergeStrat(val1: any, val2: any): any {
     if (isPlainObject(val2)) {
-        deepMerge(val1, val2)
-    } else if (val2 !== 'undefined') {
+        return deepMerge(val1, val2)
+    } else if (typeof val2 !== 'undefined') {
         return val2
     } else if (isPlainObject(val1)) {
         return deepMerge(val1)
@@ -37,7 +39,6 @@ const stratKeysDeepMerge = ['headers']
 stratKeysDeepMerge.forEach(key => {
     strats[key] = deepMergeStrat
 })
-
 
 export default function (config1: AxiosRequestConfig, config2?: AxiosRequestConfig): AxiosRequestConfig {
     if (!config2) {
@@ -62,4 +63,19 @@ export default function (config1: AxiosRequestConfig, config2?: AxiosRequestConf
     }
 
     return config
+}
+
+export function flattenHeaders(headers: any, method: Method): any {
+    if (!headers) return headers
+
+    headers = deepMerge(headers.common, headers[method], headers)
+
+    const methodsToDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'patch', 'common']
+
+    methodsToDelete.forEach(method => {
+        delete headers[method]
+    })
+
+
+    return headers
 }
