@@ -5,6 +5,7 @@ import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import { flattenHeaders } from './mergeConfig'
 
 function dispatchRequest(config: AxiosRequestConfig): AxiosPromise {
+    throwIfCancellationRequested(config)
     // 处理参数
     processConfig(config)
     return xhr(config).then(res => transformResponseData(res))
@@ -24,6 +25,12 @@ function transformURL(config: AxiosRequestConfig): string {
 function transformResponseData(res: AxiosResponse): AxiosResponse {
     res.data = transform(res.data, res.headers, res.config.transformResponse)
     return res
+}
+
+function throwIfCancellationRequested(config: AxiosRequestConfig): void {
+    if (config.cancelToken) {
+        config.cancelToken.throwIfRequested()
+    }
 }
 
 export default dispatchRequest
