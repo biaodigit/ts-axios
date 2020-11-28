@@ -1,10 +1,12 @@
 import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from './types'
 import { parseHeaders } from './helpers/headers'
 import { createError } from './helpers/error'
+import { isURLSameOrigin } from './helpers/url'
+import cookie from './helpers/cookie'
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
     return new Promise((resolve, reject) => {
-        const { method = 'get', data = null, url, headers, responseType, timeout, cancelToken, withCredentials } = config
+        const { method = 'get', data = null, url, headers, responseType, timeout, cancelToken, withCredentials, xsrfCookieName, xsrfHeaderName } = config
         const request = new XMLHttpRequest()
 
         if (responseType) {
@@ -15,11 +17,17 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
             request.timeout = timeout
         }
 
-        if(withCredentials){
+        if (withCredentials) {
             request.withCredentials = withCredentials
         }
         request.open(method.toUpperCase(), url!, true)
 
+        if ((withCredentials || isURLSameOrigin(url!)) && xsrfCookieName) {
+            const xsrfValue = cookie.read(xsrfCookieName)
+            if (xsrfValue && xsrfHeaderName) {
+                headers[xsrfHeaderName] = xsrfValue
+            }
+        }
         Object.keys(headers).forEach(name => {
             if (data === null && name.toLowerCase() === 'content-type') {
                 delete headers[name]
@@ -30,10 +38,10 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
         if (cancelToken) {
             cancelToken.promise.then(reason => {
-              request.abort()
-              reject(reason)
+                request.abort()
+                reject(reason)
             })
-          }
+        }
 
         request.send(data)
 
