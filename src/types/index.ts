@@ -35,10 +35,12 @@ export interface AxiosRequestConfig {
   timeout?: number
   transformRequest?: AxiosTransformer | AxiosTransformer[]
   transformResponse?: AxiosTransformer | AxiosTransformer[]
-  cancelToken?:CancelToken
+  cancelToken?: CancelToken
   withCredentials?: boolean
-  xsrfCookieName?:string
-  xsrfHeaderName?:string
+  xsrfCookieName?: string
+  xsrfHeaderName?: string
+  onDownloadProgress?: (e: ProgressEvent) => void
+  onUploadProgress?: (e: ProgressEvent) => void
   [propName: string]: any
 }
 
@@ -113,7 +115,7 @@ export interface CancelToken {
 }
 
 export interface Canceler {
-  (message?:string):void
+  (message?: string): void
 }
 
 export interface CancelExecutor {
@@ -132,9 +134,9 @@ export interface CancelTokenStatic {
 }
 
 export interface Cancel {
-  message?:string
+  message?: string
 }
 
 export interface CancelStatic {
-  new(message?:string): Cancel
+  new(message?: string): Cancel
 }
