@@ -12,6 +12,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
             data = null,
             url,
             headers,
+            auth,
             responseType,
             timeout,
             cancelToken,
@@ -109,6 +110,10 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
                 if (xsrfValue && xsrfHeaderName) {
                     headers[xsrfHeaderName] = xsrfValue
                 }
+            }
+
+            if (auth) {
+                headers['Authorization'] = 'Basic ' + btoa(auth.username + ':' + auth.password)
             }
             Object.keys(headers).forEach(name => {
                 if (data === null && name.toLowerCase() === 'content-type') {
