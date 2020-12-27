@@ -27,6 +27,7 @@ export interface Axios {
 // 请求行类型
 export interface AxiosRequestConfig {
   url?: string
+  baseURL?: string
   method?: Method
   data?: any
   params?: any
