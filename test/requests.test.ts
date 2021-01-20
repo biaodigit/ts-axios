@@ -236,25 +236,5 @@ describe('requests', () => {
     })
   })
 
-  test('should allow overriding Content-Type header case-insensitive', () => {
-    let response: AxiosResponse
-
-    axios
-      .post(
-        '/foo',
-        { prop: 'value' },
-        {
-          headers: {
-            'content-type': 'application/json'
-          }
-        }
-      )
-      .then(res => {
-        response = res
-      })
-
-    return getAjaxRequest().then(request => {
-      expect(request.requestHeaders['Content-Type']).toBe('application/json')
-    })
-  })
+  test('should allow overriding Content-Type header case-insensitive', () => {})
 })
