@@ -50,4 +50,42 @@ describe('headers', () => {
       testHeaderValue(request.requestHeaders, 'Content-Type', 'application/x-www-form-urlencoded')
     })
   })
+
+  test('should use application/json when posting and object', () => {
+    axios.post('/foo/bar', {
+      firstName: 'foo',
+      lastName: 'bar'
+    })
+
+    return getAjaxRequest().then(request => {
+      testHeaderValue(request.requestHeaders, 'Content-Type', 'application/json;charset=utf-8')
+    })
+  })
+
+  test('should remove content-type if data is empty', () => {
+    axios.post('/foo')
+
+    return getAjaxRequest().then(request => {
+      testHeaderValue(request.requestHeaders, 'Content-Type', undefined)
+    })
+  })
+
+  test('should preserve content-type if data is false', () => {
+    axios.post('/foo', false)
+
+    return getAjaxRequest().then(request => {
+      testHeaderValue(request.requestHeaders, 'Content-Type', 'application/x-www-form-urlencoded')
+    })
+  })
+
+  test('should remove content-type if data is FormData', () => {
+    const data = new FormData()
+    data.append('foo', 'bar')
+
+    axios.post('/foo', data)
+
+    return getAjaxRequest().then(request => {
+      testHeaderValue(request.requestHeaders, 'Content-Type', undefined)
+    })
+  })
 })
