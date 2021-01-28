@@ -1,3 +1,4 @@
+import { request } from 'http'
 import axios, { AxiosRequestConfig, AxiosResponse } from '../src/index'
 import { getAjaxRequest } from './helper'
 
@@ -181,6 +182,78 @@ describe('interceptor', () => {
         expect(response.data).toBe('you have been promised!')
         done()
       }, 100)
+    })
+  })
+
+  test('should add multiple response interceptors', done => {
+    let response: AxiosResponse
+    const instance = axios.create()
+
+    instance.interceptors.response.use(data => {
+      data.data = data.data + '1'
+      return data
+    })
+    instance.interceptors.response.use(data => {
+      data.data = data.data + '2'
+      return data
+    })
+    instance.interceptors.response.use(data => {
+      data.data = data.data + '3'
+      return data
+    })
+
+    instance('/foo').then(res => {
+      response = res
+    })
+
+    return getAjaxRequest().then(request => {
+      request.respondWith({
+        status: 200,
+        responseText: 'OK'
+      })
+
+      setTimeout(() => {
+        expect(response.data).toBe('OK123')
+        done()
+      })
+    })
+  })
+
+  test('should allow removing interceptors', done => {
+    let response: AxiosResponse
+    let intercept
+    const instance = axios.create()
+
+    instance.interceptors.response.use(data => {
+      data.data = data.data + '1'
+      return data
+    })
+    intercept = instance.interceptors.response.use(data => {
+      data.data = data.data + '2'
+      return data
+    })
+    instance.interceptors.response.use(data => {
+      data.data = data.data + '3'
+      return data
+    })
+
+    instance.interceptors.response.eject(intercept)
+    instance.interceptors.response.eject(5)
+
+    instance('/foo').then(data => {
+      response = data
+    })
+
+    return getAjaxRequest().then(request => {
+      request.respondWith({
+        status: 200,
+        responseText: 'OK'
+      })
+
+      setTimeout(() => {
+        expect(response.data).toBe('OK13')
+        done()
+      }, 10)
     })
   })
 })
